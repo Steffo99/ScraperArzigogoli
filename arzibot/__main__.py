@@ -20,8 +20,8 @@ def scraper():
     page = requests.get("https://weblab.ing.unimore.it/people/andreoli/didattica/sistemi-operativi/index.html").text
     soup = BeautifulSoup(page, "html.parser")
     array = []
-    for elem in soup.find_all('h4'):
-        x = re.search(("Arzigogolo*"), elem.text)
+    for title in soup.find_all('h4'):
+        x = re.search(r"Arzigogolo [0-9]+", title.text)
         if x is not None:
             array.append(x)
     return len(array)  # number of Arzigogoli
