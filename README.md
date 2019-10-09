@@ -1,2 +1,3 @@
-# ScraperArzigogoli
-Scraper for detect when new Arzigogolo come out
+# `arzibot`
+
+A web scraper for the Arzigogoli of Sistemi Operativi at Unimore
