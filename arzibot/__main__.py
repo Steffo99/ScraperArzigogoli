@@ -3,13 +3,12 @@ from datetime import date
 from datetime import datetime
 import requests
 import re
-import sys
 import time
 import os
 
 
 # number of arzigogoli by weeks
-def weeksFromFirst():
+def weeks_from_first():
     f_date = date(2019, 9, 30)
     l_date = date.today()
     delta = l_date - f_date
@@ -29,40 +28,41 @@ def scraper():
 
 
 # send and pin message Telegram
-def sendTelegram(numArz):
-    bot_token = ''  ### ADD
-    UnimoreGroup = ''  ###ADD
+def send_telegram(num_arz):
+    bot_token = os.environ["TG_TOKEN"]
+    unimore_group = os.environ["UNIMORE_GROUP_ID"]
     send_text = 'https://api.telegram.org/bot' + bot_token + '/sendMessage?chat_id=' + \
-                UnimoreGroup + '&parse_mode=Markdown&text=' + "Arzigogolo " + str(numArz) + \
-                " uscito: https://weblab.ing.unimore.it/people/andreolini/didattica/sistemi-operativi/2019-20/arzigogolo-" + \
-                str(numArz) + "/A" + str(numArz) + "-testo.pdf"
-    messageID = requests.get(send_text)
+                unimore_group + '&parse_mode=Markdown&text=' + "Arzigogolo " + str(num_arz) + \
+                " uscito: " \
+                "https://weblab.ing.unimore.it/people/andreolini/didattica/sistemi-operativi/2019-20/arzigogolo-" + \
+                str(num_arz) + "/A" + str(num_arz) + "-testo.pdf"
+    message_id = requests.get(send_text)
     pin_message = 'https://api.telegram.org/bot' + bot_token + '/pinChatMessage?chat_id=' + \
-                  UnimoreGroup + '&message_id=' + \
-                  str(messageID.json()["result"]["message_id"])
+                  unimore_group + '&message_id=' + \
+                  str(message_id.json()["result"]["message_id"])
     requests.get(pin_message)
 
 
 def main():
     while True:
-        ArzByWeek = weeksFromFirst()
-        ArzByWebsite = scraper()
+        arz_by_week = weeks_from_first()
+        arz_by_website = scraper()
 
-        print("Arzigogolo settimana: " + str(ArzByWeek))
-        print("Arzigogoli sul sito attualmente: " + str(ArzByWebsite))
+        print("Arzigogolo settimana: " + str(arz_by_week))
+        print("Arzigogoli sul sito attualmente: " + str(arz_by_website))
 
-        if ArzByWeek == ArzByWebsite:
-            sendTelegram(ArzByWebsite)
+        if arz_by_week == arz_by_website:
+            send_telegram(arz_by_website)
 
             # days to next week
-            daysToSunday = 6 - date.today().weekday()
+            days_to_sunday = 6 - date.today().weekday()
 
             # difference hours
-            diffHours = abs(datetime.now().replace(microsecond=0) - datetime.now().replace(hour=0, minute=0, second=0,
-                                                                                           microsecond=0)).total_seconds()
+            diff_hours = abs(datetime.now().replace(microsecond=0) -
+                             datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)).total_seconds()
 
             # sleep to monday 8:00
-            time.sleep(daysToSunday * 86400 + (86400 - diffHours + 28800))  # daysToSunday + (24h - current time + 8h)
+            time.sleep(days_to_sunday * 86400 + (115200 - diff_hours))  # days_to_sunday + (24h - current time + 8h)
         else:
             print("sleep for 15 minutes")
             time.sleep(900)
